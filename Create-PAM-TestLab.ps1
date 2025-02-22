@@ -1,5 +1,39 @@
-﻿<#
+<#
+.SYNOPSIS
+Create an AD OU with content suitable for PAM solutions.
 
+.DESCRIPTION
+The script will create a structure in AD with groups and users. The 
+information can be used with a PAM solution. Groups are created for
+login users, personal privileged accounts, shared accounts and groups,
+which can be used to isolate different "companies" within the same structure.
+
+When creating the structure it can be isolated such that the same AD can
+be used for different PAM solutions. This is helpful for a test lab, 
+where the same AD is used to setup AD structures for multiple PAM solutions,
+such that it is not necessary to have separate AD's to have a test
+environment for multiple PAM solutions.
+
+The user running this script must be a Domain Administrator in AD.
+
+.PARAMETER VendorName
+The VendorName is the name for a PAM vendor.
+
+.PARAMETER VendorPrefix
+When creating groups and users in AD their sAMAccountName is unique. The prefix
+is used in combination with names for groups and users.
+
+.PARAMETER DefaultPassword
+When some of the users are created, it may be necessary to know the initial
+password when adding them to PAM. Other users uses a reconcile or master
+account where PAM will set the account password to a random value.
+The parameter will allow a specific value for users where it is necessary to
+know the password.
+Default password is "Simple2015!" (without quotes)
+
+.EXAMPLE
+Create-PAM-TestLab -VendorName PAM-CyberArk -VendorPrefix cyb
+Create-PAM-TestLab -VendorName PAM-Symantec -VendorPrefix sym -DefaultPassword MySecretPassword
 
 #>
 Param(
@@ -55,7 +89,23 @@ function New-LdapOU () {
 
 
 #--------------------------------------------
-function New-LdapGroup () {
+<#
+.SYNOPSIS
+Will create a new OU at a given Path.
+
+.Parameters Name
+Name of the OU to be created.
+
+.PARAMETER Path
+Distinguished name or path where the OU will be created.
+
+.PARAMETER Description
+Some description to the new OU.
+
+.PARAMETER Protected
+Mark the OU protected to avoid accedential deletion.
+
+#>function New-LdapGroup () {
 	Param(
 		[Parameter(Mandatory=$true)][String] $Name,
 		[Parameter(Mandatory=$true)][String] $Path,
